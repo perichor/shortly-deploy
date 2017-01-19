@@ -3,6 +3,14 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
+      client: {
+        src: ['public/client/**/*.js'],
+        dest: 'public/dist/client.js',
+      },
+      lib: {
+        src: ['public/lib/**/*.js'],
+        dest: 'public/dist/lib.js',
+      }
     },
 
     mochaTest: {
@@ -21,15 +29,31 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      'my_target': {
+        files: {
+          'public/dist/client.min.js': ['public/dist/client.js'],
+          'public/dist/lib.min.js': ['public/dist/lib.js']
+        },
+      }
     },
 
     eslint: {
       target: [
-        // Add list of files to lint here
+        'public/client/**/*.js',
+        'public/lib/**/*.js',
+        'app/**/*.js',
+        'lib/**/*.js',
+        'server-config.js',
+        'server.js'
       ]
     },
 
     cssmin: {
+      target: {
+        files: {
+          'public/dist/style.min.css': ['public/style.css']
+        }
+      }
     },
 
     watch: {
@@ -50,8 +74,8 @@ module.exports = function(grunt) {
     },
 
     shell: {
-      prodServer: {
-        command: 'echo hello!!!'
+      multiple: {
+        command: message => ['git add .', 'git commit -m \'' + message + '\'', 'git push live master'].join(' && ')
       }
     },
   });
@@ -73,26 +97,21 @@ module.exports = function(grunt) {
   // Main grunt tasks
   ////////////////////////////////////////////////////
 
-  grunt.registerTask('test', [
-    'mochaTest'
-  ]);
+  grunt.registerTask('test', ['eslint', 'mochaTest']);
 
-  grunt.registerTask('build', [
-  ]);
+  grunt.registerTask('build', ['concat', 'uglify', 'cssmin']);
 
   grunt.registerTask('upload', function(n) {
     console.log(grunt.option('prod'));
     if (grunt.option('prod')) {
       // add your production server task here
-      grunt.task.run(['shell']);
+      grunt.task.run(['shell:multiple:' + grunt.option('prod')]);
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
   });
 
-  grunt.registerTask('deploy', [
-    // add your deploy tasks here
-  ]);
+  grunt.registerTask('deploy', ['test', 'build', 'upload']); 
 
 
 };
