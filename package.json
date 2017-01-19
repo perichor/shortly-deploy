@@ -9,6 +9,7 @@
     "node": ">=4.0.0"
   },
   "scripts": {
+    "deploy": "grunt deploy --prod",
     "start": "grunt build && grunt upload",
     "test": "grunt test",
     "lint": "eslint ./"
