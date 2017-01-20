@@ -4,6 +4,4 @@ var Link = require('../models/link');
 
 var Links = Link.collection;
 
-// Links.model = Link;
-
 module.exports = Links;
